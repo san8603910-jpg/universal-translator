@@ -1,9 +1,10 @@
 import streamlit as st
+
 from deep_translator import GoogleTranslator
 
 # 1. Page Configuration
 st.set_page_config(
-    page_title="Universal Smart Translator",
+    page_title="Anuvaad AI",
     page_icon="🔮",
     layout="centered"
 )
