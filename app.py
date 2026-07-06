@@ -1,12 +1,12 @@
 import streamlit as st
-
 from deep_translator import GoogleTranslator
 
-# 1. Page Configuration
+# इसे बिल्कुल टॉप पर रखें
 st.set_page_config(
-    page_title="Anuvaad AI",
+    page_title="Anuvaad AI", 
     page_icon="🔮",
-    layout="centered"
+    layout="centered",
+    initial_sidebar_state="collapsed"
 )
 
 # 2. Premium Custom CSS (Mobile Optimization + Hide Streamlit Branding)
