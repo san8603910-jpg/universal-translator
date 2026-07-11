@@ -9,29 +9,29 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. Custom CSS (कीबोर्ड बटनों को सुंदर बनाने के लिए)
+# 2. Custom CSS (कीबोर्ड लेआउट को एकदम परफेक्ट चौकोर आकार देने के लिए)
 st.markdown("""
     <style>
     .reportview-container .main .block-container { max-width: 600px; }
     h1 { color: #0072ff; text-align: center; font-family: 'Segoe UI', sans-serif; }
     p.subtitle { text-align: center; color: #555; margin-bottom: 20px; }
     
-    /* बटन स्टाइलिंग */
+    /* बटन स्टाइलिंग - जो इन्हें लंबा होने से रोकेगी और चौड़ा बनाएगी */
     div.stButton > button {
         width: 100% !important;
-        height: 42px !important;
-        padding: 0px !important;
-        margin: 2px 0px !important;
-        font-size: 15px !important;
+        height: 45px !important;       /* बटनों की ऊंचाई एकदम सही की */
+        padding: 2px !important;
+        margin: 3px 0px !important;
+        font-size: 16px !important;
         font-weight: bold !important;
         border-radius: 6px !important;
         background-color: #f8f9fa !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
-        transition: 0.1s;
+        border: 1px solid #ccc !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08) !important;
     }
     div.stButton > button:active {
-        background-color: #e2e6ea !important;
-        transform: scale(0.95);
+        background-color: #0072ff !important;
+        color: white !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -39,33 +39,34 @@ st.markdown("""
 st.title("🔮 Anuvaad AI")
 st.markdown("<p class='subtitle'>Instant Universal & Hinglish Translation App</p>", unsafe_allow_html=True)
 
-# स्टेट मैनेजमेंट (ताकि टाइप किया हुआ डेटा डिलीट न हो)
+# स्टेट मैनेजमेंट
 if "typed_text" not in st.session_state:
     st.session_state.typed_text = ""
 
-# 3. सभी भाषाओं की लिस्ट
+# 3. सिर्फ वही टॉप 10 भाषाएँ जो तुमने मांगी थीं
 languages = {
     'English': 'en',
-    'Hindi (हिंदी)': 'hi',
-    'Chinese (中文)': 'zh-CN',
-    'Spanish (Español)': 'es',
-    'French (Français)': 'fr',
-    'German (Deutsch)': 'de',
-    'Russian (Русский)': 'ru',
-    'Arabic (العربية)': 'ar',
-    'Japanese (日本語)': 'ja',
-    'Italian (Italiano)': 'it',
-    'Marathi (मराठी)': 'mr',
-    'Bengali (বাংলা)': 'bn'
+    'Mandarin Chinese': 'zh-CN',
+    'Hindi': 'hi',
+    'Spanish': 'es',
+    'French': 'fr',
+    'Standard Arabic': 'ar',
+    'Bengali': 'bn',
+    'Portuguese': 'pt',
+    'Russian': 'ru',
+    'Urdu': 'ur'
 }
 
 col1, col2 = st.columns(2)
 with col1:
     source_lang = st.selectbox("Typing Language (लिखने की भाषा):", list(languages.keys()))
 with col2:
-    target_lang = st.selectbox("Target Language (अनुवाद की भाषा):", list(languages.keys()), index=1)
+    target_lang = st.selectbox("Target Language (अनुवाद की भाषा):", list(languages.keys()), index=2) # Default Hindi
 
 st.write("---")
+
+is_rtl = "Arabic" in source_lang or "Urdu" in source_lang
+text_align = "right" if is_rtl else "left"
 
 # 4. इनपुट बॉक्स
 user_input = st.text_input("Type here or use the keyboard below:", value=st.session_state.typed_text)
@@ -74,64 +75,72 @@ if user_input != st.session_state.typed_text:
 
 st.write("⌨️ **On-Screen Keyboard:**")
 
-# 5. डायनेमिक कीबोर्ड लेआउट्स (Dynamic Keyboard Layouts)
-if "Hindi" in source_lang or "Marathi" in source_lang:
+# 5. लेआउट्स को पंक्तियों (Rows) में सेट करना
+if "Hindi" in source_lang:
     rows = [
-        ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ए', 'ऐ', 'ओ', 'औ', 'अं'],
-        ['क', 'ख', 'ग', 'घ', 'च', 'छ', 'ज', 'झ', 'ट', 'ठ'],
-        ['ड', 'ढ', 'त', 'थ', 'द', 'ध', 'न', 'प', 'फ', 'ब'],
-        ['भ', 'म', 'य', 'र', 'ल', 'व', 'श', 'ष', 'स', 'ह']
+        ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ए', 'ऐ', 'ओ', 'औ'],
+        ['क', 'ख', 'ग', 'घ', 'च', 'छ', 'ज', 'झ', 'ञ'],
+        ['ट', 'ठ', 'ड', 'ढ', 'ण', 'त', 'th', 'द', 'ध'],
+        ['न', 'प', 'फ', 'ब', 'भ', 'ม', 'य', 'ร', 'ल', 'व']
     ]
-elif "Chinese" in source_lang:
-    # चीनी भाषा के लिए सबसे ज़्यादा इस्तेमाल होने वाले फ्रेज/कैरेक्टर्स डायरेक्ट बटन पर
+elif "Bengali" in source_lang:
     rows = [
-        ['你', '好', '吗', '我', '很', '喜', '欢', '中', '国'],
-        ['谢', '谢', '不', '客', '气', '再', '见', '是', '的'],
-        ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p']
+        ['অ', 'আ', 'ই', 'ঈ', 'উ', 'ঊ', 'এ', 'ঐ', 'ও', 'ঔ'],
+        ['ক', 'খ', 'গ', 'ঘ', 'ঙ', 'চ', 'ছ', 'জ', 'ঝ', 'ঞ'],
+        ['ট', 'ठ', 'ড', 'ঢ', 'ণ', 'ত', 'থ', 'দ', 'ধ', 'ন'],
+        ['প', 'ফ', 'ব', 'ভ', 'ম', 'য', 'র', 'ল', 'শ', 'হ']
+    ]
+elif "Mandarin Chinese" in source_lang:
+    rows = [
+        ['你', '好', '吗', '我', '喜', '欢'],
+        ['中', '国', '人', '谢', '谢', '不'],
+        ['客', '气', '再', '见', '是', '的']
+    ]
+elif "Standard Arabic" in source_lang:
+    rows = [
+        ['ض', 'ص', 'ث', 'ق', 'ف', 'غ', 'ع', 'ه'],
+        ['خ', 'ح', 'ج', 'ش', 'س', 'ي', 'ب', 'ل'],
+        ['ا', 'ت', 'ن', 'م', 'ك', 'ط', 'ئ', 'ء']
+    ]
+elif "Urdu" in source_lang:
+    rows = [
+        ['ق', 'و', 'ر', 'ٹ', 'ے', 'ہ', 'او', 'پ'],
+        ['ا', 'س', 'د', 'ف', 'گ', 'ھ', 'ج', 'ک'],
+        ['ل', 'ز', 'خ', 'چ', 'ب', 'ن', 'م', 'ت']
     ]
 elif "Russian" in source_lang:
     rows = [
-        ['й', 'ц', 'у', 'к', 'е', 'н', 'г', 'ш', 'щ', 'з', 'х'],
-        ['ф', 'ы', 'в', 'а', 'п', 'р', 'о', 'л', 'д', 'ж', 'э'],
-        ['я', 'ч', 'с', 'м', 'и', 'т', 'ь', 'б', 'ю']
-    ]
-elif "Arabic" in source_lang:
-    rows = [
-        ['ض', 'ص', 'ث', 'ق', 'ف', 'غ', 'ع', 'ه', 'خ', 'ح', 'ج'],
-        ['ش', 'س', 'ي', 'ب', 'ل', 'ا', 'ت', 'ن', 'م', 'ك', 'ط'],
-        ['ئ', 'ء', 'ؤ', 'ر', 'لا', 'ى', 'ة', 'و', 'ز', 'ظ']
-    ]
-elif "Japanese" in source_lang:
-    rows = [
-        ['あ', 'い', 'う', 'え', 'お', 'か', 'き', 'く', 'け', 'こ'],
-        ['さ', 'し', 'す', 'せ', 'そ', 'た', 'ち', 'つ', 'て', 'と'],
-        ['な', 'に', 'ぬ', 'ね', 'の', 'は', 'ひ', 'ふ', 'へ', 'ほ'],
-        ['ま', 'み', 'む', 'め', 'も', 'や', 'ゆ', 'よ', 'ら', 'り']
+        ['й', 'ц', 'у', 'к', 'е', 'н', 'г', 'ш'],
+        ['щ', 'з', 'х', 'ф', 'ы', 'в', 'а', 'п'],
+        ['р', 'о', 'л', 'д', 'ж', 'э', 'я', 'ч']
     ]
 else:
-    # बाकी सब के लिए यूनिवर्सल QWERTY (English, French, Spanish, German)
+    # English, Spanish, French, Portuguese के लिए यूनिवर्सल QWERTY पंक्तियाँ
     rows = [
-        ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
-        ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
-        ['z', 'x', 'c', 'v', 'b', 'n', 'm']
+        ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i'],
+        ['o', 'p', 'a', 's', 'd', 'f', 'g', 'h'],
+        ['j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm']
     ]
 
-# कीबोर्ड बटन स्क्रीन पर रेंडर करना
+# बटनों को चौकोर ग्रिड में रेंडर करना (बटनों की चौड़ाई बढ़ाने के लिए पंक्तियों के बटन कम किए गए हैं)
 for row in rows:
     cols = st.columns(len(row))
     for idx, key in enumerate(row):
         if cols[idx].button(key, key=f"k_{source_lang}_{key}_{idx}"):
-            st.session_state.typed_text += key
+            if is_rtl:
+                st.session_state.typed_text = key + st.session_state.typed_text
+            else:
+                st.session_state.typed_text += key
             st.rerun()
 
-# स्पेशल यूटिलिटी कीज (Space, Backspace, Clear)
+# स्पेशल कीज (Space, Backspace, Clear)
 st.write("")
 col_sp, col_bk, col_cl = st.columns([2, 1, 1])
 if col_sp.button("Space ␣", key="key_space"):
-    st.session_state.typed_text += " "
+    st.session_state.typed_text = " " + st.session_state.typed_text if is_rtl else st.session_state.typed_text + " "
     st.rerun()
 if col_bk.button("⌫ Back", key="key_back"):
-    st.session_state.typed_text = st.session_state.typed_text[:-1]
+    st.session_state.typed_text = st.session_state.typed_text[1:] if is_rtl else st.session_state.typed_text[:-1]
     st.rerun()
 if col_cl.button("🗑️ Clear All", key="key_clear"):
     st.session_state.typed_text = ""
@@ -141,7 +150,8 @@ st.write("---")
 
 # 6. ट्रांसलेशन लॉजिक
 if st.session_state.typed_text:
-    st.info(f"**Your Text (आपका टेक्स्ट):** {st.session_state.typed_text}")
+    st.markdown(f"<div style='text-align: {text_align}; padding: 12px; background-color: #e8f0fe; border-radius: 6px; font-size: 16px;'><b>Your Text:</b> {st.session_state.typed_text}</div>", unsafe_allow_html=True)
+    st.write("")
     try:
         translated = GoogleTranslator(source=languages[source_lang], target=languages[target_lang]).translate(st.session_state.typed_text)
         st.success(f"**Translation (अनुवाद):** {translated}")
