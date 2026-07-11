@@ -9,26 +9,42 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. कड़क CSS स्टाइल (लैपटॉप पर प्यारा चौकोर लुक और मोबाइल पर नो-ब्रेक)
+# 2. कड़क CSS: जो लैपटॉप पर बटनों को चौकोर सुंदर रखेगा और मोबाइल पर उन्हें पिचकने या टूटने से रोकेगा
 st.markdown("""
     <style>
-    .reportview-container .main .block-container { max-width: 600px; padding-top: 1rem; }
-    h1 { color: #0072ff; text-align: center; font-family: 'Segoe UI', sans-serif; margin-bottom: 0px; }
+    .reportview-container .main .block-container { max-width: 600px; }
+    h1 { color: #0072ff; text-align: center; font-family: 'Segoe UI', sans-serif; }
     p.subtitle { text-align: center; color: #555; margin-bottom: 20px; }
     
-    /* स्पेस, बैक और क्लियर बटन्स के लिए स्टाइल */
+    /* ⚡ जादू: सिर्फ कीबोर्ड वाले एरिया के कॉलम्स को मोबाइल पर एक लाइन में रखने के लिए ⚡ */
+    .keyboard-container div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 4px !important;
+        width: 100% !important;
+    }
+    .keyboard-container div[data-testid="column"] {
+        flex: 1 1 0% !important;
+        min-width: 0 !important;
+    }
+    
+    /* बटन का लुक: एकदम परफेक्ट कीबोर्ड जैसा */
     div.stButton > button {
         width: 100% !important;
         height: 45px !important;
+        padding: 0px !important;
+        margin: 0px !important;
         font-size: 16px !important;
         font-weight: bold !important;
         border-radius: 6px !important;
-        background-color: #f8f9fa !important;
+        background-color: #ffffff !important;
         border: 1px solid #ced4da !important;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
     }
-    div.stButton > button:hover {
-        border-color: #0072ff !important;
+    div.stButton > button:active {
+        background-color: #0072ff !important;
+        color: white !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -39,8 +55,6 @@ st.markdown("<p class='subtitle'>Instant Universal & Hinglish Translation App</p
 # स्टेट मैनेजमेंट
 if "typed_text" not in st.session_state:
     st.session_state.typed_text = ""
-if "hidden_char" not in st.session_state:
-    st.session_state.hidden_char = ""
 
 # टॉप 10 भाषाएँ
 languages = {
@@ -67,20 +81,7 @@ st.write("---")
 is_rtl = "Arabic" in source_lang or "Urdu" in source_lang
 text_align = "right" if is_rtl else "left"
 
-# 🔮 जादुई ट्रिक: छुपे हुए इनपुट बॉक्स की एरर खत्म करने के लिए साधारण text_input (बिना 'key' के)
-# जावास्क्रिप्ट इसमें वैल्यू डालेगी, और पायथन उसे रीड करके ऑन-द-फ्लाई स्टेट साफ कर देगा
-hidden_val = st.text_input("Hidden Sync Input", value=st.session_state.hidden_char, label_visibility="collapsed")
-
-if hidden_val:
-    if is_rtl:
-        st.session_state.typed_text = hidden_val + st.session_state.typed_text
-    else:
-        st.session_state.typed_text += hidden_val
-    # स्टेट को सुरक्षित तरीके से खाली करना ताकि दोबारा वही बटन दबाया जा सके
-    st.session_state.hidden_char = ""
-    st.rerun()
-
-# मुख्य दिखने वाला इनपुट बॉक्स
+# मुख्य इनपुट बॉक्स (अब सिर्फ यही एक इकलौता बॉक्स रहेगा)
 user_input = st.text_input("Type here or use the keyboard below:", value=st.session_state.typed_text)
 if user_input != st.session_state.typed_text:
     st.session_state.typed_text = user_input
@@ -93,7 +94,7 @@ if "Hindi" in source_lang:
         ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ए', 'ऐ', 'ओ', 'औ'],
         ['क', 'ख', 'ग', 'घ', 'च', 'छ', 'ज', 'झ', 'ञ'],
         ['ट', 'ठ', 'ड', 'ढ', 'ण', 'त', 'थ', 'द', 'ध'],
-        ['ন', 'प', 'ফ', 'ब', 'भ', 'म', 'य', 'र', 'ल', 'व']
+        ['ন', 'प', 'फ', 'ब', 'भ', 'म', 'य', 'र', 'ल', 'व']
     ]
 elif "Bengali" in source_lang:
     rows = [
@@ -151,76 +152,20 @@ else:
         ['z', 'x', 'c', 'v', 'b', 'n', 'm']
     ]
 
-# 3. HTML/CSS कीबोर्ड संरचना
-html_code = """
-<style>
-    .keyboard {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        background-color: #f1f3f4;
-        padding: 10px;
-        border-radius: 8px;
-        font-family: system-ui, -apple-system, sans-serif;
-    }
-    .keyboard-row {
-        display: flex;
-        justify-content: center;
-        gap: 4px;
-        width: 100%;
-    }
-    .key-btn {
-        flex: 1;
-        height: 42px;
-        font-size: 16px;
-        font-weight: bold;
-        background: white;
-        border: 1px solid #ced4da;
-        border-radius: 5px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        user-select: none;
-        -webkit-tap-highlight-color: transparent;
-    }
-    .key-btn:active {
-        background: #0072ff;
-        color: white;
-    }
-</style>
-<div class="keyboard">
-"""
+# 3. कीबोर्ड कंटेनर: यहाँ CSS क्लास लगा दी है ताकि सिर्फ यही रो मोबाइल पर न टूटे
+st.markdown('<div class="keyboard-container">', unsafe_allow_html=True)
+for r_idx, row in enumerate(rows):
+    cols = st.columns(len(row))
+    for idx, key in enumerate(row):
+        if cols[idx].button(key, key=f"k_{source_lang}_{r_idx}_{idx}_{key}"):
+            if is_rtl:
+                st.session_state.typed_text = key + st.session_state.typed_text
+            else:
+                st.session_state.typed_text += key
+            st.rerun()
+st.markdown('</div>', unsafe_allow_html=True)
 
-for row in rows:
-    html_code += '<div class="keyboard-row">'
-    for key in row:
-        html_code += f'<div class="key-btn" onclick="pressKey(\'{key}\')">{key}</div>'
-    html_code += '</div>'
-
-html_code += """
-</div>
-
-<script>
-function pressKey(val) {
-    var inputs = window.parent.document.querySelectorAll('input');
-    for (var i = 0; i < inputs.length; i++) {
-        if (inputs[i].getAttribute('aria-label') === 'Hidden Sync Input') {
-            inputs[i].value = val;
-            inputs[i].dispatchEvent(new Event('input', { bubbles: true }));
-            inputs[i].dispatchEvent(new Event('change', { bubbles: true }));
-            break;
-        }
-    }
-}
-</script>
-"""
-
-# HTML कीबोर्ड रेंडर करना
-st.components.v1.html(html_code, height=210)
-
-# 4. स्पेशल यूटिलिटी कीज (Space, Back, Clear)
+# 4. स्पेशल यूटिलिटी कीज (Space, Backspace, Clear)
 st.write("")
 col_sp, col_bk, col_cl = st.columns([2, 1, 1])
 if col_sp.button("Space ␣", key="key_space"):
