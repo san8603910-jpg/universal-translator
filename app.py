@@ -5,52 +5,11 @@ from deep_translator import GoogleTranslator
 st.set_page_config(
     page_title="Anuvaad AI", 
     page_icon="🔮",
-    layout="centered",
-    initial_sidebar_state="collapsed"
+    layout="centered"
 )
 
-# 2. कड़क CSS: जो लैपटॉप पर बटनों को चौकोर सुंदर रखेगा और मोबाइल पर उन्हें पिचकने या टूटने से रोकेगा
-st.markdown("""
-    <style>
-    .reportview-container .main .block-container { max-width: 600px; }
-    h1 { color: #0072ff; text-align: center; font-family: 'Segoe UI', sans-serif; }
-    p.subtitle { text-align: center; color: #555; margin-bottom: 20px; }
-    
-    /* ⚡ जादू: सिर्फ कीबोर्ड वाले एरिया के कॉलम्स को मोबाइल पर एक लाइन में रखने के लिए ⚡ */
-    .keyboard-container div[data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        gap: 4px !important;
-        width: 100% !important;
-    }
-    .keyboard-container div[data-testid="column"] {
-        flex: 1 1 0% !important;
-        min-width: 0 !important;
-    }
-    
-    /* बटन का लुक: एकदम परफेक्ट कीबोर्ड जैसा */
-    div.stButton > button {
-        width: 100% !important;
-        height: 45px !important;
-        padding: 0px !important;
-        margin: 0px !important;
-        font-size: 16px !important;
-        font-weight: bold !important;
-        border-radius: 6px !important;
-        background-color: #ffffff !important;
-        border: 1px solid #ced4da !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
-    }
-    div.stButton > button:active {
-        background-color: #0072ff !important;
-        color: white !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
 st.title("🔮 Anuvaad AI")
-st.markdown("<p class='subtitle'>Instant Universal & Hinglish Translation App</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #555;'>Instant Universal & Hinglish Translation App</p>", unsafe_allow_html=True)
 
 # स्टेट मैनेजमेंट
 if "typed_text" not in st.session_state:
@@ -81,7 +40,7 @@ st.write("---")
 is_rtl = "Arabic" in source_lang or "Urdu" in source_lang
 text_align = "right" if is_rtl else "left"
 
-# मुख्य इनपुट बॉक्स (अब सिर्फ यही एक इकलौता बॉक्स रहेगा)
+# इकलौता मुख्य इनपुट बॉक्स (कोई छुपा हुआ बॉक्स नहीं, कोई कन्फ्यूजन नहीं)
 user_input = st.text_input("Type here or use the keyboard below:", value=st.session_state.typed_text)
 if user_input != st.session_state.typed_text:
     st.session_state.typed_text = user_input
@@ -94,56 +53,13 @@ if "Hindi" in source_lang:
         ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ए', 'ऐ', 'ओ', 'औ'],
         ['क', 'ख', 'ग', 'घ', 'च', 'छ', 'ज', 'झ', 'ञ'],
         ['ट', 'ठ', 'ड', 'ढ', 'ण', 'त', 'थ', 'द', 'ध'],
-        ['ন', 'प', 'फ', 'ब', 'भ', 'म', 'य', 'र', 'ल', 'व']
-    ]
-elif "Bengali" in source_lang:
-    rows = [
-        ['অ', 'আ', 'ই', 'ঈ', 'উ', 'ঊ', 'এ', 'ঐ', 'ও', 'ঔ'],
-        ['ক', 'খ', 'গ', 'ঘ', 'ঙ', 'চ', 'ছ', 'জ', 'ঝ', 'ঞ'],
-        ['ট', 'ঠ', 'ড', 'ঢ', 'ণ', 'ত', 'থ', 'দ', 'ধ', 'ন'],
-        ['প', 'ফ', 'ব', 'ভ', 'ম', 'য', 'র', 'ল', 'শ', 'হ']
-    ]
-elif "Mandarin Chinese" in source_lang:
-    rows = [
-        ['你', '好', '吗', '我', '喜', '欢'],
-        ['中', '国', '人', '谢', '谢', '不'],
-        ['客', '气', '再', '见', '是', '的']
-    ]
-elif "Standard Arabic" in source_lang:
-    rows = [
-        ['ض', 'ص', 'ث', 'ق', 'ف', 'غ', 'ع', 'ه'],
-        ['خ', 'ح', 'ج', 'ش', 'س', 'ي', 'ب', 'ل'],
-        ['ا', 'ت', 'ن', 'م', 'ك', 'ط', 'ئ', 'ء']
-    ]
-elif "Urdu" in source_lang:
-    rows = [
-        ['ق', 'و', 'ر', 'ٹ', 'ے', 'ہ', 'او', 'پ'],
-        ['ا', 'س', 'د', 'ف', 'گ', 'ھ', 'ج', 'ک'],
-        ['ل', 'ز', 'خ', 'چ', 'ب', 'ন', 'م', 'ت']
-    ]
-elif "Russian" in source_lang:
-    rows = [
-        ['й', 'ц', 'у', 'к', 'е', 'н', 'г', 'ш'],
-        ['щ', 'з', 'х', 'ф', 'ы', 'в', 'а', 'п'],
-        ['р', 'о', 'л', 'д', 'ж', 'э', 'я', 'ч']
+        ['न', 'प', 'फ', 'ब', 'भ', 'म', 'य', 'र', 'ल', 'व']
     ]
 elif "Spanish" in source_lang:
     rows = [
         ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
         ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ñ'],
         ['z', 'x', 'c', 'v', 'b', 'n', 'm', 'á', 'é', 'í']
-    ]
-elif "French" in source_lang:
-    rows = [
-        ['a', 'z', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
-        ['q', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm'],
-        ['w', 'x', 'c', 'v', 'b', 'n', 'é', 'è', 'à', 'ç']
-    ]
-elif "Portuguese" in source_lang:
-    rows = [
-        ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
-        ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ç'],
-        ['z', 'x', 'c', 'v', 'b', 'n', 'm', 'ã', 'õ', 'á']
     ]
 else:
     rows = [
@@ -152,20 +68,18 @@ else:
         ['z', 'x', 'c', 'v', 'b', 'n', 'm']
     ]
 
-# 3. कीबोर्ड कंटेनर: यहाँ CSS क्लास लगा दी है ताकि सिर्फ यही रो मोबाइल पर न टूटे
-st.markdown('<div class="keyboard-container">', unsafe_allow_html=True)
+# सीधा-सादा स्ट्रीमलिट ग्रिड (बिना किसी आड़े-तिरछे CSS हैक के)
 for r_idx, row in enumerate(rows):
     cols = st.columns(len(row))
     for idx, key in enumerate(row):
-        if cols[idx].button(key, key=f"k_{source_lang}_{r_idx}_{idx}_{key}"):
+        if cols[idx].button(key, key=f"k_{r_idx}_{idx}_{key}"):
             if is_rtl:
                 st.session_state.typed_text = key + st.session_state.typed_text
             else:
                 st.session_state.typed_text += key
             st.rerun()
-st.markdown('</div>', unsafe_allow_html=True)
 
-# 4. स्पेशल यूटिलिटी कीज (Space, Backspace, Clear)
+# 4. स्पेशल यूटिलिटी कीज
 st.write("")
 col_sp, col_bk, col_cl = st.columns([2, 1, 1])
 if col_sp.button("Space ␣", key="key_space"):
