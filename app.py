@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. कड़क CSS स्टाइल (पहली बार जैसा खूबसूरत लुक)
+# 2. कड़क CSS स्टाइल (लैपटॉप पर प्यारा चौकोर लुक और मोबाइल पर नो-ब्रेक)
 st.markdown("""
     <style>
     .reportview-container .main .block-container { max-width: 600px; padding-top: 1rem; }
@@ -39,6 +39,8 @@ st.markdown("<p class='subtitle'>Instant Universal & Hinglish Translation App</p
 # स्टेट मैनेजमेंट
 if "typed_text" not in st.session_state:
     st.session_state.typed_text = ""
+if "hidden_char" not in st.session_state:
+    st.session_state.hidden_char = ""
 
 # टॉप 10 भाषाएँ
 languages = {
@@ -65,17 +67,17 @@ st.write("---")
 is_rtl = "Arabic" in source_lang or "Urdu" in source_lang
 text_align = "right" if is_rtl else "left"
 
-# 🔮 जादुई ट्रिक: कीबोर्ड से आने वाले डेटा को कैच करने के लिए एक छुपा हुआ इनपुट बॉक्स
-# जब भी नीचे HTML कीबोर्ड पर क्लिक होगा, जावास्क्रिप्ट इसमें वैल्यू डालकर 'Enter' हिट कर देगी
-hidden_val = st.text_input("Hidden Sync Input", key="hidden_sync", label_visibility="collapsed")
+# 🔮 जादुई ट्रिक: छुपे हुए इनपुट बॉक्स की एरर खत्म करने के लिए साधारण text_input (बिना 'key' के)
+# जावास्क्रिप्ट इसमें वैल्यू डालेगी, और पायथन उसे रीड करके ऑन-द-फ्लाई स्टेट साफ कर देगा
+hidden_val = st.text_input("Hidden Sync Input", value=st.session_state.hidden_char, label_visibility="collapsed")
 
 if hidden_val:
     if is_rtl:
         st.session_state.typed_text = hidden_val + st.session_state.typed_text
     else:
         st.session_state.typed_text += hidden_val
-    # इनपुट को वापस खाली करना ताकि अगले क्लिक के लिए तैयार रहे
-    st.session_state.hidden_sync = ""
+    # स्टेट को सुरक्षित तरीके से खाली करना ताकि दोबारा वही बटन दबाया जा सके
+    st.session_state.hidden_char = ""
     st.rerun()
 
 # मुख्य दिखने वाला इनपुट बॉक्स
@@ -110,13 +112,13 @@ elif "Standard Arabic" in source_lang:
     rows = [
         ['ض', 'ص', 'ث', 'ق', 'ف', 'غ', 'ع', 'ه'],
         ['خ', 'ح', 'ج', 'ش', 'س', 'ي', 'ب', 'ل'],
-        ['ا', 'ত', 'ن', 'م', 'ك', 'ط', 'ئ', 'ء']
+        ['ا', 'ت', 'ن', 'م', 'ك', 'ط', 'ئ', 'ء']
     ]
 elif "Urdu" in source_lang:
     rows = [
-        ['ق', 'و', 'ر', 'ٹ', 'ے', 'ہ', 'او', '义'],
+        ['ق', 'و', 'ر', 'ٹ', 'ے', 'ہ', 'او', 'پ'],
         ['ا', 'س', 'د', 'ف', 'گ', 'ھ', 'ج', 'ک'],
-        ['ل', 'ز', 'خ', 'च', 'ب', 'ন', 'م', 'ت']
+        ['ل', 'ز', 'خ', 'چ', 'ب', 'ন', 'م', 'ت']
     ]
 elif "Russian" in source_lang:
     rows = [
@@ -149,7 +151,7 @@ else:
         ['z', 'x', 'c', 'v', 'b', 'n', 'm']
     ]
 
-# 3. HTML/CSS कीबोर्ड (जो लैपटॉप और मोबाइल दोनों पर एकदम परफेक्ट और कड़क दिखेगा)
+# 3. HTML/CSS कीबोर्ड संरचना
 html_code = """
 <style>
     .keyboard {
@@ -194,7 +196,6 @@ html_code = """
 for row in rows:
     html_code += '<div class="keyboard-row">'
     for key in row:
-        # जावास्क्रिप्ट फ़ंक्शन को ट्रिगर करना
         html_code += f'<div class="key-btn" onclick="pressKey(\'{key}\')">{key}</div>'
     html_code += '</div>'
 
@@ -203,12 +204,10 @@ html_code += """
 
 <script>
 function pressKey(val) {
-    // पैरेंट विंडो (Streamlit) के छिपे हुए इनपुट बॉक्स को खोजना
     var inputs = window.parent.document.querySelectorAll('input');
     for (var i = 0; i < inputs.length; i++) {
         if (inputs[i].getAttribute('aria-label') === 'Hidden Sync Input') {
             inputs[i].value = val;
-            // स्ट्रीमलिट को बताना कि डेटा बदल गया है ताकि वह तुरंत टाइप कर दे
             inputs[i].dispatchEvent(new Event('input', { bubbles: true }));
             inputs[i].dispatchEvent(new Event('change', { bubbles: true }));
             break;
