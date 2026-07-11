@@ -1,6 +1,5 @@
 import streamlit as st
 from deep_translator import GoogleTranslator
-import urllib.parse
 
 # 1. Page Configuration
 st.set_page_config(
@@ -10,22 +9,46 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. कड़क CSS स्टाइल (लैपटॉप और मोबाइल दोनों के लुक के लिए)
+# 2. सीएसएस हैक: यह बिना आईफ्रेम के स्ट्रीमलिट के बटनों को मोबाइल पर टूटने से रोकेगा
 st.markdown("""
     <style>
-    .reportview-container .main .block-container { max-width: 600px; padding-top: 1rem; }
-    h1 { color: #0072ff; text-align: center; font-family: 'Segoe UI', sans-serif; margin-bottom: 0px; }
+    .reportview-container .main .block-container { max-width: 600px; }
+    h1 { color: #0072ff; text-align: center; font-family: 'Segoe UI', sans-serif; }
     p.subtitle { text-align: center; color: #555; margin-bottom: 20px; }
     
-    /* यूटिलिटी बटन्स (Space, Back, Clear) के लिए स्टाइल */
+    /* ⚡ जादुई हैक: स्ट्रीमलिट के डिफ़ॉल्ट कॉलम को मोबाइल पर भी एक लाइन में रखने के लिए ⚡ */
+    div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 4px !important;
+        width: 100% !important;
+    }
+    
+    div[data-testid="column"] {
+        flex: 1 1 0% !important;
+        min-width: 0 !important;
+    }
+    
+    /* तुम्हारा पसंदीदा पहला वाला बटन स्टाइल */
     div.stButton > button {
         width: 100% !important;
         height: 45px !important;
+        padding: 0px !important;
+        margin: 0px !important;
         font-size: 16px !important;
         font-weight: bold !important;
         border-radius: 6px !important;
-        background-color: #f8f9fa !important;
+        background-color: #ffffff !important;
         border: 1px solid #ced4da !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+    }
+    
+    div.stButton > button:active {
+        background-color: #0072ff !important;
+        color: white !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -36,23 +59,6 @@ st.markdown("<p class='subtitle'>Instant Universal & Hinglish Translation App</p
 # स्टेट मैनेजमेंट
 if "typed_text" not in st.session_state:
     st.session_state.typed_text = ""
-
-# क्वेरी पैरामीटर से कीबोर्ड इनपुट पकड़ना (यह बिना लेआउट बिगाड़े काम करता है)
-query_params = st.query_params
-if "add_key" in query_params:
-    clicked_key = query_params["add_key"]
-    # पैरामीटर को तुरंत साफ करना ताकि रीलोड पर बार-बार टाइप न हो
-    st.query_params.clear()
-    
-    if clicked_key == "SPACE":
-        st.session_state.typed_text += " "
-    elif clicked_key == "BACK":
-        st.session_state.typed_text = st.session_state.typed_text[:-1]
-    elif clicked_key == "CLEAR":
-        st.session_state.typed_text = ""
-    else:
-        st.session_state.typed_text += clicked_key
-    st.rerun()
 
 # टॉप 10 भाषाएँ
 languages = {
@@ -89,17 +95,17 @@ st.write("⌨️ **On-Screen Keyboard:**")
 # --- भाषाओं के सटीक लेआउट्स ---
 if "Hindi" in source_lang:
     rows = [
-        ['अ', 'आ', 'इ', 'ई', 'う', 'ऊ', 'ए', 'ऐ', 'ओ', 'औ'],
-        ['क', 'ख', 'ग', 'घ', 'च', 'छ', 'ज', 'झ'],
-        ['ट', 'ठ', 'ड', 'ढ', 'त', 'थ', 'द', 'ध'],
-        ['न', 'प', 'ফ', 'ब', 'भ', 'म', 'य', 'र', 'ल', 'व']
+        ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ए', 'ऐ', 'ओ', 'औ'],
+        ['क', 'ख', 'ग', 'घ', 'च', 'छ', 'ज', 'झ', 'ञ'],
+        ['ट', 'ठ', 'ड', 'ढ', 'ण', 'त', 'थ', 'द', 'ध'],
+        ['न', 'प', 'फ', 'ब', 'भ', 'म', 'य', 'र', 'ल', 'व']
     ]
 elif "Bengali" in source_lang:
     rows = [
         ['অ', 'আ', 'ই', 'ঈ', 'উ', 'ঊ', 'এ', 'ঐ', 'ও', 'ঔ'],
-        ['ক', 'খ', 'গ', 'ঘ', 'চ', 'ছ', 'জ', 'ঝ'],
-        ['ট', 'ঠ', 'ড', 'ঢ', 'ত', 'থ', 'দ', 'ধ'],
-        ['ন', 'প', 'ফ', 'ব', 'ভ', 'ম', 'য', 'র', 'ল', 'শ']
+        ['ক', 'খ', 'গ', 'ঘ', 'ঙ', 'চ', 'ছ', 'জ', 'ঝ', 'ঞ'],
+        ['ট', 'ঠ', 'ড', 'ঢ', 'ণ', 'ত', 'থ', 'দ', 'ধ', 'ন'],
+        ['প', 'ফ', 'ব', 'ভ', 'ম', 'য', 'র', 'ল', 'শ', 'হ']
     ]
 elif "Mandarin Chinese" in source_lang:
     rows = [
@@ -122,8 +128,8 @@ elif "Urdu" in source_lang:
 elif "Russian" in source_lang:
     rows = [
         ['й', 'ц', 'у', 'к', 'е', 'н', 'г', 'ш'],
-        ['ф', 'ы', 'в', 'а', 'п', 'р', 'о', 'л'],
-        ['д', 'ж', 'э', 'я', 'ч', 'с', 'м', 'и']
+        ['щ', 'з', 'х', 'ф', 'ы', 'в', 'а', 'п'],
+        ['р', 'о', 'л', 'д', 'ж', 'э', 'я', 'ч']
     ]
 elif "Spanish" in source_lang:
     rows = [
@@ -150,62 +156,18 @@ else:
         ['z', 'x', 'c', 'v', 'b', 'n', 'm']
     ]
 
-# 3. HTML/CSS कीबोर्ड बनाना जो कभी नहीं टूटेगा
-html_code = """
-<style>
-    .keyboard {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        background-color: #f1f3f4;
-        padding: 10px;
-        border-radius: 8px;
-        font-family: sans-serif;
-    }
-    .keyboard-row {
-        display: flex;
-        justify-content: center;
-        gap: 4px;
-        width: 100%;
-    }
-    .key-btn {
-        flex: 1;
-        height: 42px;
-        font-size: 16px;
-        font-weight: bold;
-        background: white;
-        border: 1px solid #ced4da;
-        border-radius: 5px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        text-decoration: none;
-        color: black;
-    }
-    .key-btn:active {
-        background: #0072ff;
-        color: white;
-    }
-</style>
-<div class="keyboard">
-"""
+# बटनों को रेंडर करना (वही पुराना सिंपल और वर्किंग तरीका)
+for r_idx, row in enumerate(rows):
+    cols = st.columns(len(row))
+    for idx, key in enumerate(row):
+        if cols[idx].button(key, key=f"k_{source_lang}_{r_idx}_{idx}_{key}"):
+            if is_rtl:
+                st.session_state.typed_text = key + st.session_state.typed_text
+            else:
+                st.session_state.typed_text += key
+            st.rerun()
 
-for row in rows:
-    html_code += '<div class="keyboard-row">'
-    for key in row:
-        encoded_key = urllib.parse.quote(key)
-        # बटन पर क्लिक करते ही पैरेंट विंडो का URL पैरामीटर अपडेट होगा जिससे स्ट्रीमलिट को इनपुट मिल जाएगा
-        html_code += f'<a class="key-btn" target="_parent" href="?add_key={encoded_key}">{key}</a>'
-    html_code += '</div>'
-
-html_code += "</div>"
-
-# ऑन-स्क्रीन कीबोर्ड रेंडर करना
-st.components.v1.html(html_code, height=210)
-
-# 4. स्पेशल यूटिलिटी कीज (Space, Back, Clear) - ये स्ट्रीमलिट के ही रहेंगे क्योंकि ये 3 ही बटन हैं, तो मोबाइल पर नहीं टूटेंगे
+# स्पेशल यूटिलिटी कीज (Space, Backspace, Clear)
 st.write("")
 col_sp, col_bk, col_cl = st.columns([2, 1, 1])
 if col_sp.button("Space ␣", key="key_space"):
