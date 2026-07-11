@@ -9,53 +9,43 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. Custom CSS (मोबाइल और लैपटॉप दोनों पर असली कीबोर्ड लुक)
+# 2. कड़क CSS जो स्ट्रीमलिट के कॉलम को मोबाइल पर भी टूटने नहीं देगी
 st.markdown("""
     <style>
     .reportview-container .main .block-container { max-width: 600px; }
     h1 { color: #0072ff; text-align: center; font-family: 'Segoe UI', sans-serif; }
     p.subtitle { text-align: center; color: #555; margin-bottom: 20px; }
     
-    /* असली कीबोर्ड कंटेनर - यह कभी टूटने नहीं देगा */
-    .custom-kbd-container {
-        background-color: #f1f3f4;
-        padding: 10px;
-        border-radius: 10px;
-        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        margin-top: 15px;
+    /* ⚡ जादुई हैक: मोबाइल पर स्ट्रीमलिट के कॉलम को जबरदस्ती एक लाइन में रखना ⚡ */
+    [data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        width: 100% !important;
+        gap: 4px !important;
     }
-    .kbd-row {
-        display: flex;
-        justify-content: center;
-        gap: 4px;
-        width: 100%;
+    [data-testid="column"] {
+        width: 100% !important;
+        flex: 1 !important;
+        min-width: 0 !important;
     }
-    .kbd-btn {
-        flex: 1;
-        height: 42px;
-        font-size: 16px;
-        font-weight: bold;
-        background: white;
-        border: 1px solid #ced4da;
-        border-radius: 5px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        user-select: none;
-        -webkit-tap-highlight-color: transparent;
+    
+    /* बटन स्टाइलिंग - एकदम परफेक्ट कीबोर्ड लुक */
+    div.stButton > button {
+        width: 100% !important;
+        height: 42px !important;
+        padding: 0px !important;
+        margin: 0px !important;
+        font-size: 16px !important;
+        font-weight: bold !important;
+        border-radius: 6px !important;
+        background-color: #ffffff !important;
+        border: 1px solid #ced4da !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
     }
-    .kbd-btn:active {
-        background: #0072ff;
-        color: white;
-    }
-    .kbd-btn.special {
-        background: #e2e6ea;
-        flex: 1.5;
+    div.stButton > button:active {
+        background-color: #0072ff !important;
+        color: white !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -92,45 +82,19 @@ st.write("---")
 is_rtl = "Arabic" in source_lang or "Urdu" in source_lang
 text_align = "right" if is_rtl else "left"
 
-# छुपा हुआ इनपुट सिंक करने के लिए ट्रिक
-js_click = st.text_input("Hidden Linker", key="js_click", label_visibility="collapsed")
-if js_click:
-    if js_click == "SPACE":
-        st.session_state.typed_text = " " + st.session_state.typed_text if is_rtl else st.session_state.typed_text + " "
-    elif js_click == "BACK":
-        st.session_state.typed_text = st.session_state.typed_text[1:] if is_rtl else st.session_state.typed_text[:-1]
-    elif js_click == "CLEAR":
-        st.session_state.typed_text = ""
-    else:
-        st.session_state.typed_text = js_click + st.session_state.typed_text if is_rtl else st.session_state.typed_text + js_click
-    
-    # तुरंत इनपुट रीसेट करना ताकि दोबारा सेम कैरेक्टर दबाया जा सके
-    st.components.v1.html("""
-        <script>
-        var inputs = window.parent.document.querySelectorAll('input');
-        for (var i = 0; i < inputs.length; i++) {
-            if (inputs[i].getAttribute('aria-label') === 'Hidden Linker') {
-                inputs[i].value = '';
-                inputs[i].dispatchEvent(new Event('input', { bubbles: true }));
-            }
-        }
-        </script>
-    """, height=0)
-    st.rerun()
-
-# मुख्य दिखने वाला इनपुट बॉक्स
+# मुख्य इनपुट बॉक्स
 user_input = st.text_input("Type here or use the keyboard below:", value=st.session_state.typed_text)
 if user_input != st.session_state.typed_text:
     st.session_state.typed_text = user_input
 
 st.write("⌨️ **On-Screen Keyboard:**")
 
-# भाषा के हिसाब से लेआउट चुनना
+# भाषा के हिसाब से लेआउट
 if "Hindi" in source_lang:
     rows = [
         ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ए', 'ऐ', 'ओ', 'औ'],
         ['क', 'ख', 'ग', 'घ', 'च', 'छ', 'ज', 'झ', 'ञ'],
-        ['ट', 'ठ', 'ड', 'ढ', 'ण', 'त', 'थ', 'দ', 'ध'],
+        ['ट', 'ठ', 'ड', 'ढ', 'ण', 'त', 'थ', 'द', 'ध'],
         ['ন', 'प', 'फ', 'ब', 'भ', 'म', 'य', 'र', 'ल', 'व']
     ]
 elif "Bengali" in source_lang:
@@ -155,8 +119,8 @@ elif "Standard Arabic" in source_lang:
 elif "Urdu" in source_lang:
     rows = [
         ['ق', 'و', 'ر', 'ٹ', 'ے', 'ہ', 'او', 'پ'],
-        ['ا', 'س', 'د', '导', 'گ', 'ھ', 'ج', 'ک'],
-        ['ل', 'ز', 'خ', 'چ', 'ب', 'ن', 'م', 'ت']
+        ['ا', 'س', 'د', 'ف', 'گ', 'ھ', 'ج', 'ک'],
+        ['ل', 'ز', 'خ', 'چ', 'ب', 'ন', 'م', 'ت']
     ]
 elif "Russian" in source_lang:
     rows = [
@@ -165,47 +129,36 @@ elif "Russian" in source_lang:
         ['р', 'о', 'л', 'д', 'ж', 'э', 'я', 'ч']
     ]
 else:
+    # English, Spanish, French, Portuguese
     rows = [
         ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
         ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
         ['z', 'x', 'c', 'v', 'b', 'n', 'm']
     ]
 
-# जावास्क्रिप्ट आधारित फुल रिस्पॉन्सिव कीबोर्ड इंजेक्शन
-kbd_html = f"""
-<div class="custom-kbd-container">
-"""
-for row in rows:
-    kbd_html += '<div class="kbd-row">'
-    for key in row:
-        kbd_html += f'<div class="kbd-btn" onclick="sendKey(\'{key}\')">{key}</div>'
-    kbd_html += '</div>'
+# बटनों को रेंडर करना (हैक किए गए कड़क रिस्पॉन्सिव ग्रिड के साथ)
+for r_idx, row in enumerate(rows):
+    cols = st.columns(len(row))
+    for idx, key in enumerate(row):
+        if cols[idx].button(key, key=f"k_{source_lang}_{r_idx}_{idx}_{key}"):
+            if is_rtl:
+                st.session_state.typed_text = key + st.session_state.typed_text
+            else:
+                st.session_state.typed_text += key
+            st.rerun()
 
-# स्पेशल बटन्स की रो
-kbd_html += f"""
-    <div class="kbd-row">
-        <div class="kbd-btn special" onclick="sendKey('SPACE')">Space ␣</div>
-        <div class="kbd-btn special" onclick="sendKey('BACK')">⌫ Back</div>
-        <div class="kbd-btn special" onclick="sendKey('CLEAR')">🗑️ Clear</div>
-    </div>
-</div>
-
-<script>
-function sendKey(val) {{
-    var inputs = window.parent.document.querySelectorAll('input');
-    for (var i = 0; i < inputs.length; i++) {{
-        if (inputs[i].getAttribute('aria-label') === 'Hidden Linker') {{
-            inputs[i].value = val;
-            inputs[i].dispatchEvent(new Event('input', {{ bubbles: true }}));
-            break;
-        {{
-    {{
-}}
-</script>
-"""
-
-# HTML कीबोर्ड को कंपोनेंट के जरिए दिखाना
-st.components.v1.html(kbd_html, height=240)
+# स्पेशल यूटिलिटी कीज (Space, Backspace, Clear)
+st.write("")
+col_sp, col_bk, col_cl = st.columns([2, 1, 1])
+if col_sp.button("Space ␣", key="key_space"):
+    st.session_state.typed_text = " " + st.session_state.typed_text if is_rtl else st.session_state.typed_text + " "
+    st.rerun()
+if col_bk.button("⌫ Back", key="key_back"):
+    st.session_state.typed_text = st.session_state.typed_text[1:] if is_rtl else st.session_state.typed_text[:-1]
+    st.rerun()
+if col_cl.button("🗑️ Clear All", key="key_clear"):
+    st.session_state.typed_text = ""
+    st.rerun()
 
 st.write("---")
 
