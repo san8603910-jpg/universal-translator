@@ -9,26 +9,53 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. Custom CSS (कीबोर्ड लेआउट को एकदम परफेक्ट चौकोर आकार देने के लिए)
+# 2. Custom CSS (मोबाइल रिस्पॉन्सिव कीबोर्ड के लिए जादुई कोड)
 st.markdown("""
     <style>
-    .reportview-container .main .block-container { max-width: 600px; }
-    h1 { color: #0072ff; text-align: center; font-family: 'Segoe UI', sans-serif; }
+    .reportview-container .main .block-container { max-width: 600px; padding-top: 2rem; }
+    h1 { color: #0072ff; text-align: center; font-family: 'Segoe UI', sans-serif; margin-bottom: 0px; }
     p.subtitle { text-align: center; color: #555; margin-bottom: 20px; }
     
-    /* बटन स्टाइलिंग - जो इन्हें लंबा होने से रोकेगी और चौड़ा बनाएगी */
+    /* कीबोर्ड कंटेनर डिज़ाइन */
+    .keyboard-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        background-color: #f1f3f4;
+        padding: 12px;
+        border-radius: 12px;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        margin-top: 10px;
+    }
+    
+    /* हर पंक्ति (Row) को सेट करना जो कभी भी टूटेगी नहीं */
+    .keyboard-row {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        gap: 5px;
+    }
+    
+    /* बट्टों को कस्टमाइज़ करना */
     div.stButton > button {
         width: 100% !important;
-        height: 45px !important;       /* बटनों की ऊंचाई एकदम सही की */
-        padding: 2px !important;
-        margin: 3px 0px !important;
-        font-size: 16px !important;
+        height: 42px !important;
+        min-width: 25px !important;
+        padding: 0px !important;
+        margin: 0px !important;
+        font-size: 15px !important;
         font-weight: bold !important;
-        border-radius: 6px !important;
-        background-color: #f8f9fa !important;
-        border: 1px solid #ccc !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.08) !important;
+        border-radius: 5px !important;
+        background-color: #ffffff !important;
+        border: 1px solid #ced4da !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
     }
+    
+    div.stButton > button:hover {
+        border-color: #0072ff !important;
+        background-color: #f8f9fa !important;
+    }
+    
     div.stButton > button:active {
         background-color: #0072ff !important;
         color: white !important;
@@ -43,7 +70,7 @@ st.markdown("<p class='subtitle'>Instant Universal & Hinglish Translation App</p
 if "typed_text" not in st.session_state:
     st.session_state.typed_text = ""
 
-# 3. सिर्फ वही टॉप 10 भाषाएँ जो तुमने मांगी थीं
+# 3. टॉप 10 भाषाएँ
 languages = {
     'English': 'en',
     'Mandarin Chinese': 'zh-CN',
@@ -61,7 +88,7 @@ col1, col2 = st.columns(2)
 with col1:
     source_lang = st.selectbox("Typing Language (लिखने की भाषा):", list(languages.keys()))
 with col2:
-    target_lang = st.selectbox("Target Language (अनुवाद की भाषा):", list(languages.keys()), index=2) # Default Hindi
+    target_lang = st.selectbox("Target Language (अनुवाद की भाषा):", list(languages.keys()), index=2)
 
 st.write("---")
 
@@ -75,20 +102,20 @@ if user_input != st.session_state.typed_text:
 
 st.write("⌨️ **On-Screen Keyboard:**")
 
-# 5. लेआउट्स को पंक्तियों (Rows) में सेट करना
+# 5. लेआउट्स को पंक्तियों में सेट करना (थोड़ा छोटा लेआउट ताकि मोबाइल पर एकदम फिट आए)
 if "Hindi" in source_lang:
     rows = [
-        ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ए', 'ऐ', 'ओ', 'औ'],
-        ['क', 'ख', 'ग', 'घ', 'च', 'छ', 'ज', 'झ', 'ञ'],
-        ['ट', 'ठ', 'ड', 'ढ', 'ण', 'त', 'th', 'द', 'ध'],
-        ['न', 'प', 'फ', 'ब', 'भ', 'ม', 'य', 'ร', 'ल', 'व']
+        ['अ', 'आ', 'इ', 'ई', 'う', 'ऊ', 'ए', 'ऐ', 'ओ', 'औ'],
+        ['क', 'ख', 'ग', 'घ', 'च', 'छ', 'ज', 'झ'],
+        ['ट', 'ठ', 'ड', 'ढ', 'त', 'थ', 'द', 'ध'],
+        ['न', 'प', 'ফ', 'ब', 'भ', 'म', 'य', 'र', 'ल', 'व']
     ]
 elif "Bengali" in source_lang:
     rows = [
         ['অ', 'আ', 'ই', 'ঈ', 'উ', 'ঊ', 'এ', 'ঐ', 'ও', 'ঔ'],
-        ['ক', 'খ', 'গ', 'ঘ', 'ঙ', 'চ', 'ছ', 'জ', 'ঝ', 'ঞ'],
-        ['ট', 'ठ', 'ড', 'ঢ', 'ণ', 'ত', 'থ', 'দ', 'ধ', 'ন'],
-        ['প', 'ফ', 'ব', 'ভ', 'ম', 'য', 'র', 'ল', 'শ', 'হ']
+        ['ক', 'খ', 'গ', 'ঘ', 'চ', 'ছ', 'জ', 'ঝ'],
+        ['ট', 'ठ', 'ড', 'ঢ', 'ত', 'থ', 'দ', 'ধ'],
+        ['ন', 'প', 'ফ', 'ব', 'ভ', 'ম', 'য', 'র', 'ল', 'শ']
     ]
 elif "Mandarin Chinese" in source_lang:
     rows = [
@@ -111,29 +138,34 @@ elif "Urdu" in source_lang:
 elif "Russian" in source_lang:
     rows = [
         ['й', 'ц', 'у', 'к', 'е', 'н', 'г', 'ш'],
-        ['щ', 'з', 'х', 'ф', 'ы', 'в', 'а', 'п'],
-        ['р', 'о', 'л', 'д', 'ж', 'э', 'я', 'ч']
+        ['ф', 'ы', 'в', 'а', 'п', 'р', 'о', 'л'],
+        ['д', 'ж', 'э', 'я', 'ч', 'с', 'м', 'и']
     ]
 else:
-    # English, Spanish, French, Portuguese के लिए यूनिवर्सल QWERTY पंक्तियाँ
+    # English, Spanish, French, Portuguese (Standard QWERTY 3 Rows)
     rows = [
-        ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i'],
-        ['o', 'p', 'a', 's', 'd', 'f', 'g', 'h'],
-        ['j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm']
+        ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+        ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+        ['z', 'x', 'c', 'v', 'b', 'n', 'm']
     ]
 
-# बटनों को चौकोर ग्रिड में रेंडर करना (बटनों की चौड़ाई बढ़ाने के लिए पंक्तियों के बटन कम किए गए हैं)
-for row in rows:
+# HTML डिज़ाइन कंटेनर की शुरुआत (बैकएंड पर सुंदर दिखाने के लिए)
+st.markdown('<div class="keyboard-container">', unsafe_allow_html=True)
+
+for r_idx, row in enumerate(rows):
+    # हर पंक्ति के लिए अलग कॉलम ताकि बटन साइड-बाय-साइड रहें
     cols = st.columns(len(row))
     for idx, key in enumerate(row):
-        if cols[idx].button(key, key=f"k_{source_lang}_{key}_{idx}"):
+        if cols[idx].button(key, key=f"btn_{source_lang}_{r_idx}_{idx}_{key}"):
             if is_rtl:
                 st.session_state.typed_text = key + st.session_state.typed_text
             else:
                 st.session_state.typed_text += key
             st.rerun()
 
-# स्पेशल कीज (Space, Backspace, Clear)
+st.markdown('</div>', unsafe_allow_html=True)
+
+# स्पेशल यूटिलिटी कीज (Space, Backspace, Clear)
 st.write("")
 col_sp, col_bk, col_cl = st.columns([2, 1, 1])
 if col_sp.button("Space ␣", key="key_space"):
