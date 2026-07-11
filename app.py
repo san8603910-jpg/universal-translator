@@ -9,39 +9,29 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. कड़क CSS जो स्ट्रीमलिट के कॉलम को मोबाइल पर भी टूटने नहीं देगी
+# 2. तुम्हारा पसंदीदा पहला वाला CSS स्टाइल (अब मोबाइल और लैपटॉप दोनों के लिए सेट)
 st.markdown("""
     <style>
     .reportview-container .main .block-container { max-width: 600px; }
     h1 { color: #0072ff; text-align: center; font-family: 'Segoe UI', sans-serif; }
     p.subtitle { text-align: center; color: #555; margin-bottom: 20px; }
     
-    /* ⚡ जादुई हैक: मोबाइल पर स्ट्रीमलिट के कॉलम को जबरदस्ती एक लाइन में रखना ⚡ */
-    [data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        width: 100% !important;
-        gap: 4px !important;
-    }
-    [data-testid="column"] {
-        width: 100% !important;
-        flex: 1 !important;
-        min-width: 0 !important;
-    }
-    
-    /* बटन स्टाइलिंग - एकदम परफेक्ट कीबोर्ड लुक */
+    /* पहली बार वाला कस्टमाइजेशन - जो बिल्कुल सही काम कर रहा था */
     div.stButton > button {
         width: 100% !important;
-        height: 42px !important;
+        height: 45px !important;       /* परफेक्ट ऊंचाई */
         padding: 0px !important;
-        margin: 0px !important;
-        font-size: 15px !important;
+        margin: 2px 0px !important;
+        font-size: 16px !important;
         font-weight: bold !important;
         border-radius: 6px !important;
         background-color: #ffffff !important;
         border: 1px solid #ced4da !important;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+        
+        /* ये दो लाइनें मोबाइल पर अक्षर को नीचे टूटने से रोकेंगी */
+        min-width: auto !important;
+        white-space: nowrap !important;
     }
     div.stButton > button:active {
         background-color: #0072ff !important;
@@ -119,8 +109,8 @@ elif "Standard Arabic" in source_lang:
 elif "Urdu" in source_lang:
     rows = [
         ['ق', 'و', 'ر', 'ٹ', 'ے', 'ہ', 'او', 'پ'],
-        ['ا', 'س', 'د', 'ف', 'گ', 'ھ', 'ج', 'ک'],
-        ['ل', 'ز', 'خ', 'چ', 'ب', 'ن', 'م', 'ت']
+        ['ا', 'س', 'د', 'ف', 'ग', 'ھ', 'ج', 'ک'],
+        ['ل', 'ز', 'خ', 'چ', 'ب', 'ন', 'م', 'ت']
     ]
 elif "Russian" in source_lang:
     rows = [
@@ -129,7 +119,6 @@ elif "Russian" in source_lang:
         ['р', 'о', 'л', 'д', 'ж', 'э', 'я', 'ч']
     ]
 elif "Spanish" in source_lang:
-    # Spanish में 'ñ' और 'á','é' जैसे एक्सीलेंट कीज जरूरी हैं
     rows = [
         ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
         ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ñ'],
@@ -137,7 +126,6 @@ elif "Spanish" in source_lang:
         ['ó', 'ú', 'ü', '¿', '¡']
     ]
 elif "French" in source_lang:
-    # French में असली AZERTY लेआउट और 'ç', 'é', 'è', 'à' अक्षर होते हैं
     rows = [
         ['a', 'z', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
         ['q', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm'],
@@ -145,7 +133,6 @@ elif "French" in source_lang:
         ['ù', 'ë', 'î', 'ï', 'ô']
     ]
 elif "Portuguese" in source_lang:
-    # Portuguese में 'ç', 'ã', 'õ', 'â' का बहुत इस्तेमाल होता है
     rows = [
         ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
         ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ç'],
@@ -153,14 +140,13 @@ elif "Portuguese" in source_lang:
         ['é', 'í', 'ó', 'ú', 'â', 'ê', 'ô']
     ]
 else:
-    # Standard English QWERTY
     rows = [
         ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
         ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
         ['z', 'x', 'c', 'v', 'b', 'n', 'm']
     ]
 
-# बटनों को रेंडर करना
+# बटनों को रेंडर करना (वही पुराना सिंपल तरीका)
 for r_idx, row in enumerate(rows):
     cols = st.columns(len(row))
     for idx, key in enumerate(row):
