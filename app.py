@@ -36,7 +36,7 @@ st.markdown("""
         height: 42px !important;
         padding: 0px !important;
         margin: 0px !important;
-        font-size: 16px !important;
+        font-size: 15px !important;
         font-weight: bold !important;
         border-radius: 6px !important;
         background-color: #ffffff !important;
@@ -89,7 +89,7 @@ if user_input != st.session_state.typed_text:
 
 st.write("⌨️ **On-Screen Keyboard:**")
 
-# भाषा के हिसाब से लेआउट
+# --- भाषा के हिसाब से सटीक लेआउट ---
 if "Hindi" in source_lang:
     rows = [
         ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ए', 'ऐ', 'ओ', 'औ'],
@@ -120,7 +120,7 @@ elif "Urdu" in source_lang:
     rows = [
         ['ق', 'و', 'ر', 'ٹ', 'ے', 'ہ', 'او', 'پ'],
         ['ا', 'س', 'د', 'ف', 'گ', 'ھ', 'ج', 'ک'],
-        ['ل', 'ز', 'خ', 'چ', 'ب', 'ন', 'م', 'ت']
+        ['ل', 'ز', 'خ', 'چ', 'ب', 'ن', 'م', 'ت']
     ]
 elif "Russian" in source_lang:
     rows = [
@@ -128,15 +128,39 @@ elif "Russian" in source_lang:
         ['щ', 'з', 'х', 'ф', 'ы', 'в', 'а', 'п'],
         ['р', 'о', 'л', 'д', 'ж', 'э', 'я', 'ч']
     ]
+elif "Spanish" in source_lang:
+    # Spanish में 'ñ' और 'á','é' जैसे एक्सीलेंट कीज जरूरी हैं
+    rows = [
+        ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+        ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ñ'],
+        ['z', 'x', 'c', 'v', 'b', 'n', 'm', 'á', 'é', 'í'],
+        ['ó', 'ú', 'ü', '¿', '¡']
+    ]
+elif "French" in source_lang:
+    # French में असली AZERTY लेआउट और 'ç', 'é', 'è', 'à' अक्षर होते हैं
+    rows = [
+        ['a', 'z', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+        ['q', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm'],
+        ['w', 'x', 'c', 'v', 'b', 'n', 'é', 'è', 'à', 'ç'],
+        ['ù', 'ë', 'î', 'ï', 'ô']
+    ]
+elif "Portuguese" in source_lang:
+    # Portuguese में 'ç', 'ã', 'õ', 'â' का बहुत इस्तेमाल होता है
+    rows = [
+        ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+        ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ç'],
+        ['z', 'x', 'c', 'v', 'b', 'n', 'm', 'ã', 'õ', 'á'],
+        ['é', 'í', 'ó', 'ú', 'â', 'ê', 'ô']
+    ]
 else:
-    # English, Spanish, French, Portuguese
+    # Standard English QWERTY
     rows = [
         ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
         ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
         ['z', 'x', 'c', 'v', 'b', 'n', 'm']
     ]
 
-# बटनों को रेंडर करना (हैक किए गए कड़क रिस्पॉन्सिव ग्रिड के साथ)
+# बटनों को रेंडर करना
 for r_idx, row in enumerate(rows):
     cols = st.columns(len(row))
     for idx, key in enumerate(row):
