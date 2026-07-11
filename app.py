@@ -55,6 +55,40 @@ st.markdown("""
         line-height: 1.6;
         word-wrap: break-word;
     }
+
+    /* ------------------------------------------------------
+       MOBILE FIX: by default Streamlit stacks st.columns()
+       vertically (one per line) below ~640px width. This
+       breaks the on-screen keyboard layout on phones. We
+       force the keyboard rows to stay horizontal and wrap
+       like a real keyboard instead.
+       ------------------------------------------------------ */
+    div[data-testid="stHorizontalBlock"] {
+        flex-wrap: wrap !important;
+        flex-direction: row !important;
+        gap: 4px !important;
+    }
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+        width: auto !important;
+        min-width: 34px !important;
+        flex: 1 1 auto !important;
+    }
+    @media (max-width: 640px) {
+        div[data-testid="stHorizontalBlock"] {
+            flex-direction: row !important;
+            flex-wrap: wrap !important;
+        }
+        div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            width: auto !important;
+            min-width: 32px !important;
+            flex: 1 1 auto !important;
+        }
+        .key-btn button {
+            font-size: 15px !important;
+            padding: 4px 2px !important;
+            min-width: 32px !important;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 
