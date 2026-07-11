@@ -1,7 +1,8 @@
 import streamlit as st
+import streamlit.components.v1 as components
 from deep_translator import GoogleTranslator
 
-# इसे बिल्कुल टॉप पर रखें
+# 1. Page Configuration
 st.set_page_config(
     page_title="Anuvaad AI", 
     page_icon="🔮",
@@ -9,130 +10,111 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. Premium Custom CSS (Mobile Optimization + Hide Streamlit Branding)
+# 2. Custom CSS (Clean UI के लिए)
 st.markdown("""
     <style>
-    /* 1. स्ट्रीमलिट की ब्रांडिंग और मेनू छुपाने का जादुई कोड */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    .stAppDeployButton {display: none !important;}
-    div.stActionButton {display: none !important;}
-    
-    /* 2. बैकग्राउंड और फॉन्ट स्टाइल */
-    .main {
-        background-color: #f9fbfd;
-        font-family: 'Segoe UI', system-ui, sans-serif;
-    }
-    
-    /* 3. मोबाइल के लिए टाइटल्स को रेस्पॉन्सिव बनाना */
-    .main-title {
-        background: linear-gradient(45deg, #00c6ff, #0072ff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-size: calc(1.8rem + 1.5vw); /* मोबाइल पर छोटा, कंप्यूटर पर बड़ा होगा */
-        font-weight: 800;
-        text-align: center;
-        margin-top: -20px;
-        margin-bottom: 5px;
-    }
-    .sub-title {
-        color: #666666;
-        text-align: center;
-        font-size: calc(0.9rem + 0.3vw);
-        margin-bottom: 25px;
-    }
-    
-    /* 4. मोबाइल फ्रेंडली आउटपुट बॉक्स */
-    .output-box {
-        background-color: #ffffff;
-        padding: 15px;
-        border-radius: 12px;
-        border-left: 5px solid #0072ff;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-        font-size: 1.1rem;
-        color: #2c3e50;
-        line-height: 1.5;
-        margin-top: 10px;
-    }
-    
-    /* 5. इनपुट बॉक्स के टेक्स्ट एरिया को मोबाइल पर बेहतर दिखाना */
-    textarea {
-        font-size: 1rem !important;
-    }
+    .reportview-container .main .block-container{ max-width: 600px; }
+    h1 { color: #0072ff; text-align: center; }
     </style>
-""", unsafe_allow_html=True)
+""", unsafe_style_blocks=True)
 
-st.markdown('<div class="main-title">🔮 Anuvaad AI</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-title">Instant Universal language Translation</div>', unsafe_allow_html=True)
+st.title("🔮 Anuvaad AI")
+st.write("Instant Universal & Hinglish Translation App")
 
-# 3. Load Supported Languages
-try:
-    lang_dict = GoogleTranslator().get_supported_languages(as_dict=True)
-    display_languages = {k.title(): v for k, v in lang_dict.items()}
-except Exception:
-    display_languages = {"English": "en", "Hindi": "hi", "Spanish": "es", "French": "fr"}
-
-sorted_lang_names = sorted(list(display_languages.keys()))
-default_index = sorted_lang_names.index("English") if "English" in sorted_lang_names else 0
-
-# Language Dropdown
-target_lang_name = st.selectbox(
-    "🎯 Select Target Language:",
-    options=sorted_lang_names,
-    index=default_index
-)
-target_lang_code = display_languages[target_lang_name]
-
-# Text input
-source_text = st.text_area(
-    "📥 Enter Text:", 
-    placeholder="Type or paste text here... (e.g., namaste, kaise ho)",
-    height=120
-)
-
-# Hinglish Dictionary Mapping
-HINGLISH_MAP = {
-    "namaste": "Hello / Greetings",
-    "namaskar": "Hello / Greetings",
-    "kaise ho": "How are you?",
-    "aap kaise ho": "How are you?",
-    "kya kar rahe ho": "What are you doing?",
-    "kya chal raha hai": "What's going on?",
-    "shukriya": "Thank you",
-    "dhanyawad": "Thank you",
-    "alvida": "Goodbye",
-    "haan": "Yes",
-    "na": "No",
-    "nahi": "No"
+# 3. भाषा चुनने का ऑप्शन
+languages = {
+    'English': 'en',
+    'Hindi (हिंदी)': 'hi',
+    'Spanish': 'es',
+    'French': 'fr',
+    'German': 'de'
 }
 
-# Translate Button
-if st.button("Translate ✨", type="primary", use_container_width=True): # use_container_width से बटन मोबाइल स्क्रीन पर पूरा फैल जाएगा जो सुंदर दिखता है
-    cleaned_input = source_text.strip().lower().replace("?", "").replace("!", "")
-    
-    if not source_text.strip():
-        st.error("⚠️ Please enter some text first!")
-    else:
-        with st.spinner(f"Translating..."):
-            try:
-                if cleaned_input in HINGLISH_MAP and target_lang_code == 'en':
-                    translated = HINGLISH_MAP[cleaned_input]
-                else:
-                    if target_lang_code == 'en':
-                        try:
-                            hindi_script = GoogleTranslator(source='en', target='hi').translate(source_text)
-                            translated = GoogleTranslator(source='hi', target='en').translate(hindi_script)
-                            if translated.strip().lower() == source_text.strip().lower():
-                                translated = GoogleTranslator(source='auto', target='en').translate(source_text)
-                        except:
-                            translated = GoogleTranslator(source='auto', target=target_lang_code).translate(source_text)
-                    else:
-                        translated = GoogleTranslator(source='auto', target=target_lang_code).translate(source_text)
+source_lang = st.selectbox("Select Typing Language (typing की भाषा चुनें):", list(languages.keys()))
+target_lang = st.selectbox("Select Target Language (अनुवाद की भाषा चुनें):", list(languages.keys()), index=1)
 
-                st.markdown(f"### 📤 Output:")
-                st.markdown(f'<div class="output-box">{translated}</div>', unsafe_allow_html=True)
-                st.toast("Done!", icon="✅")
-                
-            except Exception as e:
-                st.error(f"Something went wrong: {e}")
+# कीबोर्ड लेआउट तय करना (हिंदी या इंग्लिश के हिसाब से)
+layout_type = "hindi" if "Hindi" in source_lang else "english"
+
+# 4. जादुई वर्चुअल कीबोर्ड (HTML/JS Component)
+# यह कंपोनेंट सीधे स्क्रीन पर कीबोर्ड दिखाएगा और टाइप किया हुआ टेक्स्ट स्ट्रीमलिट को वापस भेजेगा
+custom_keyboard_html = f"""
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-keyboard@latest/build/css/index.css">
+<style>
+    body {{ font-family: sans-serif; margin: 0; padding: 0; background: transparent; }}
+    #input_box {{ width: 100%; padding: 12px; font-size: 16px; border: 2px solid #0072ff; border-radius: 8px; box-sizing: border-box; margin-bottom: 10px; }}
+    .simple-keyboard {{ max-width: 100%; background-color: #f1f3f4; border-radius: 8px; padding: 5px; }}
+</style>
+
+<input id="input_box" placeholder="Type here using screen keyboard..." />
+<div class="simple-keyboard"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/simple-keyboard@latest/build/index.js"></script>
+<script>
+    const Keyboard = window.SimpleKeyboard.default;
+    
+    // हिंदी और इंग्लिश के लेआउट्स
+    const layouts = {{
+        english: {{
+            'default': [
+                'q w e r t y u i o p',
+                'a s d f g h j k l',
+                'z x c v b n m {{bksp}}',
+                '{{space}}'
+            ]
+        }},
+        hindi: {{
+            'default': [
+                'अ आ इ ई उ ऊ ए ऐ ओ औ अं अः',
+                'क ख ग घ ङ च छ ज झ ञ',
+                'ट ठ ड ढ ण त थ द ध न',
+                'प फ ब भ म य र ल व श',
+                'ष स ह क्ष त्र ज्ञ  {{bksp}}',
+                '{{space}}'
+            ]
+        }}
+    }};
+
+    const myKeyboard = new Keyboard({{
+        onChange: input => onChange(input),
+        onKeyPress: button => onKeyPress(button),
+        layout: layouts['{layout_type}']
+    }});
+
+    function onChange(input) {{
+        document.querySelector("#input_box").value = input;
+        // स्ट्रीमलिट को डेटा भेजना
+        window.parent.postMessage({{
+            type: 'streamlit:setComponentValue',
+            value: input
+        }}, '*');
+    }}
+
+    function onKeyPress(button) {{
+        if (button === "{{{{shift}}}}" || button === "{{{{lock}}}}") handleShift();
+    }}
+    
+    // इनपुट बॉक्स में मैन्युअल टाइपिंग सिंक करना
+    document.querySelector("#input_box").addEventListener("input", event => {{
+        myKeyboard.setInput(event.target.value);
+        window.parent.postMessage({{
+            type: 'streamlit:setComponentValue',
+            value: event.target.value
+        }}, '*');
+    }});
+</script>
+"""
+
+# HTML कंपोनेंट को स्ट्रीमलिट में रेंडर करना
+st.write("---")
+st.write("⌨️ **On-Screen Keyboard Input:**")
+user_text = components.html(custom_keyboard_html, height=280, scrolling=False)
+
+# 5. ट्रांसलेशन लॉजिक
+if user_text:
+    st.info(f"**Your Text:** {user_text}")
+    try:
+        translated = GoogleTranslator(source=languages[source_lang], target=languages[target_lang]).translate(user_text)
+        st.success(f"**Translation:** {translated}")
+    except Exception as e:
+        st.error("Translation error or empty input.")
