@@ -2,7 +2,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 from deep_translator import GoogleTranslator
 
-# 1. Page Configuration (बिल्कुल टॉप पर)
+# 1. Page Configuration
 st.set_page_config(
     page_title="Anuvaad AI", 
     page_icon="🔮",
@@ -10,7 +10,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. Custom CSS (Clean UI के लिए)
+# 2. Custom CSS
 st.markdown("""
     <style>
     .reportview-container .main .block-container { max-width: 600px; }
@@ -22,13 +22,26 @@ st.markdown("""
 st.title("🔮 Anuvaad AI")
 st.markdown("<p class='subtitle'>Instant Universal & Hinglish Translation App</p>", unsafe_allow_html=True)
 
-# 3. भाषा चुनने का ऑप्शन
+# 3. दुनिया की सभी मुख्य भाषाओं की लिस्ट (Full Support)
 languages = {
     'English': 'en',
     'Hindi (हिंदी)': 'hi',
-    'Spanish': 'es',
-    'French': 'fr',
-    'German': 'de'
+    'Spanish (Español)': 'es',
+    'French (Français)': 'fr',
+    'German (Deutsch)': 'de',
+    'Italian (Italiano)': 'it',
+    'Portuguese (Português)': 'pt',
+    'Russian (Русский)': 'ru',
+    'Chinese (中文)': 'zh-CN',
+    'Japanese (日本語)': 'ja',
+    'Korean (한국어)': 'ko',
+    'Arabic (العربية)': 'ar',
+    'Bengali (বাংলা)': 'bn',
+    'Marathi (मराठी)': 'mr',
+    'Telugu (తెలుగు)': 'te',
+    'Tamil (தமிழ்)': 'ta',
+    'Gujarati (ગુજરાતી)': 'gu',
+    'Urdu (اُردو)': 'ur'
 }
 
 col1, col2 = st.columns(2)
@@ -37,10 +50,10 @@ with col1:
 with col2:
     target_lang = st.selectbox("Target Language (अनुवाद की भाषा):", list(languages.keys()), index=1)
 
-# कीबोर्ड लेआउट तय करना (हिंदी या इंग्लिश के हिसाब से)
+# अगर हिंदी चुनी है तो हिंदी लेआउट, बाकी सभी भाषाओं के लिए यूनिवर्सल इंग्लिश लेआउट काम करेगा
 layout_type = "hindi" if "Hindi" in source_lang else "english"
 
-# 4. वर्चुअल कीबोर्ड (HTML/JS Component)
+# 4. यूनिवर्सल वर्चुअल कीबोर्ड कंपोनेंट
 custom_keyboard_html = f"""
 <!DOCTYPE html>
 <html>
@@ -79,9 +92,9 @@ custom_keyboard_html = f"""
         hindi: {{
             'default': [
                 'अ आ इ ई उ ऊ ए ऐ ओ औ अं अः',
-                'क ख ग घ ङ च छ ज झ ञ',
-                'ट ठ ड ढ ण त थ द ध न',
-                'प फ ब भ म य र ल व श',
+                'क kh ग gh ङ च ch ज jh ञ',
+                'ट ठ ड ढ ण त th द dh न',
+                'प ph ब bh म य र ल व श',
                 'ष स ह क्ष त्र ज्ञ {{bksp}}',
                 '{{space}}'
             ]
@@ -95,14 +108,12 @@ custom_keyboard_html = f"""
 
     function onChange(input) {{
         document.querySelector("#input_box").value = input;
-        // स्ट्रीमलिट को रीयल-टाइम डेटा भेजना
         window.parent.postMessage({{
             type: 'streamlit:setComponentValue',
             value: input
         }}, '*');
     }}
 
-    // कीबोर्ड और इनपुट बॉक्स को आपस में सिंक रखना
     document.querySelector("#input_box").addEventListener("input", event => {{
         myKeyboard.setInput(event.target.value);
         window.parent.postMessage({{
@@ -119,7 +130,7 @@ custom_keyboard_html = f"""
 st.write("---")
 st.write("⌨️ **On-Screen Keyboard Input:**")
 
-# HTML कंपोनेंट को रेंडर करना (यह वैल्यू रिटर्न करेगा)
+# वर्चुअल कीबोर्ड को रेंडर करना
 user_text = components.html(custom_keyboard_html, height=320, scrolling=False)
 
 # 5. ट्रांसलेशन लॉजिक
@@ -129,4 +140,4 @@ if user_text:
         translated = GoogleTranslator(source=languages[source_lang], target=languages[target_lang]).translate(user_text)
         st.success(f"**Translation (अनुवाद):** {translated}")
     except Exception as e:
-        st.error("अनुवाद करने में कुछ दिक्कत आई या इनपुट खाली है।")
+        st.error("अनुवाद करने में कुछ दिक्कत आई। कृपया दोबारा प्रयास करें।")
