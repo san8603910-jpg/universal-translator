@@ -11,11 +11,11 @@ st.set_page_config(
 st.title("🔮 Anuvaad AI")
 st.markdown("<p style='text-align: center; color: #555;'>Instant Universal & Hinglish Translation App</p>", unsafe_allow_html=True)
 
-# स्टेट मैनेजमेंट
+# स्टेट延ैनेजमेंट
 if "typed_text" not in st.session_state:
     st.session_state.typed_text = ""
 
-# टॉप 10 भाषाएँ
+# टॉप 10 भाषाएँ (पूरी लिस्ट वापस आ गई)
 languages = {
     'English': 'en',
     'Mandarin Chinese': 'zh-CN',
@@ -40,14 +40,14 @@ st.write("---")
 is_rtl = "Arabic" in source_lang or "Urdu" in source_lang
 text_align = "right" if is_rtl else "left"
 
-# इकलौता मुख्य इनपुट बॉक्स (कोई छुपा हुआ बॉक्स नहीं, कोई कन्फ्यूजन नहीं)
+# इकलौता मुख्य इनपुट बॉक्स
 user_input = st.text_input("Type here or use the keyboard below:", value=st.session_state.typed_text)
 if user_input != st.session_state.typed_text:
     st.session_state.typed_text = user_input
 
 st.write("⌨️ **On-Screen Keyboard:**")
 
-# --- भाषाओं के सटीक लेआउट्स ---
+# --- सभी 10 भाषाओं के सटीक लेआउट्स (अब कोई मिसिंग नहीं है) ---
 if "Hindi" in source_lang:
     rows = [
         ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ए', 'ऐ', 'ओ', 'औ'],
@@ -55,20 +55,63 @@ if "Hindi" in source_lang:
         ['ट', 'ठ', 'ड', 'ढ', 'ण', 'त', 'थ', 'द', 'ध'],
         ['न', 'प', 'फ', 'ब', 'भ', 'म', 'य', 'र', 'ल', 'व']
     ]
+elif "Bengali" in source_lang:
+    rows = [
+        ['অ', 'আ', 'ই', 'ঈ', 'উ', 'ঊ', 'এ', 'ঐ', 'ও', 'ঔ'],
+        ['ক', 'খ', 'গ', 'ঘ', 'ঙ', 'চ', 'ছ', 'জ', 'ঝ', 'ঞ'],
+        ['ট', 'ঠ', 'ড', 'ঢ', 'ণ', 'ত', 'থ', 'দ', 'ধ', 'ন'],
+        ['প', 'ফ', 'ব', 'ভ', 'ম', 'য', 'র', 'ল', 'শ', 'হ']
+    ]
+elif "Mandarin Chinese" in source_lang:
+    rows = [
+        ['你', '好', '吗', '我', '喜', '欢'],
+        ['中', '国', '人', '谢', '谢', '不'],
+        ['客', '气', '再', '见', '是', '的']
+    ]
+elif "Standard Arabic" in source_lang:
+    rows = [
+        ['ض', 'ص', 'ث', 'ق', 'ف', 'غ', 'ع', 'ه'],
+        ['خ', 'ح', 'ج', 'ش', 'س', 'ي', 'ب', 'ل'],
+        ['ا', 'ت', 'ن', 'م', 'ك', 'ط', 'ئ', 'ء']
+    ]
+elif "Urdu" in source_lang:
+    rows = [
+        ['ق', 'و', 'ر', 'ٹ', 'ے', 'ہ', 'او', 'پ'],
+        ['ا', 'س', 'د', 'ف', 'گ', 'ھ', 'ج', 'ک'],
+        ['ل', 'ز', 'خ', 'च', 'ب', 'ন', 'م', 'ت']
+    ]
+elif "Russian" in source_lang:
+    rows = [
+        ['й', 'ц', 'у', 'к', 'е', 'н', 'г', 'ш'],
+        ['щ', 'з', 'х', 'ф', 'ы', 'в', 'а', 'п'],
+        ['р', 'о', 'л', 'д', 'ж', 'э', 'я', 'ч']
+    ]
 elif "Spanish" in source_lang:
     rows = [
         ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
         ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ñ'],
         ['z', 'x', 'c', 'v', 'b', 'n', 'm', 'á', 'é', 'í']
     ]
-else:
+elif "French" in source_lang:
+    rows = [
+        ['a', 'z', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+        ['q', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm'],
+        ['w', 'x', 'c', 'v', 'b', 'n', 'é', 'è', 'à', 'ç']
+    ]
+elif "Portuguese" in source_lang:
+    rows = [
+        ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+        ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ç'],
+        ['z', 'x', 'c', 'v', 'b', 'n', 'm', 'ã', 'õ', 'á']
+    ]
+else: # English और बाकी डिफ़ॉल्ट के लिए
     rows = [
         ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
         ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
         ['z', 'x', 'c', 'v', 'b', 'n', 'm']
     ]
 
-# सीधा-सादा स्ट्रीमलिट ग्रिड (बिना किसी आड़े-तिरछे CSS हैक के)
+# ग्रिड जनरेशन
 for r_idx, row in enumerate(rows):
     cols = st.columns(len(row))
     for idx, key in enumerate(row):
