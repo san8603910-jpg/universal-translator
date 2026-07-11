@@ -66,27 +66,28 @@ st.markdown("""
     div[data-testid="stHorizontalBlock"] {
         flex-wrap: wrap !important;
         flex-direction: row !important;
-        gap: 4px !important;
+        row-gap: 4px !important;
+        column-gap: 4px !important;
     }
-    div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+    div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
         width: auto !important;
-        min-width: 34px !important;
-        flex: 1 1 auto !important;
+        min-width: 36px !important;
+        flex: 0 1 auto !important;
     }
     @media (max-width: 640px) {
         div[data-testid="stHorizontalBlock"] {
             flex-direction: row !important;
             flex-wrap: wrap !important;
         }
-        div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+        div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
             width: auto !important;
-            min-width: 32px !important;
-            flex: 1 1 auto !important;
+            min-width: 30px !important;
+            flex: 0 1 auto !important;
         }
         .key-btn button {
             font-size: 15px !important;
             padding: 4px 2px !important;
-            min-width: 32px !important;
+            min-width: 30px !important;
         }
     }
 </style>
