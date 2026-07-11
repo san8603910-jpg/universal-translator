@@ -2,7 +2,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 from deep_translator import GoogleTranslator
 
-# 1. Page Configuration
+# 1. Page Configuration (बिल्कुल टॉप पर)
 st.set_page_config(
     page_title="Anuvaad AI", 
     page_icon="🔮",
@@ -13,13 +13,14 @@ st.set_page_config(
 # 2. Custom CSS (Clean UI के लिए)
 st.markdown("""
     <style>
-    .reportview-container .main .block-container{ max-width: 600px; }
-    h1 { color: #0072ff; text-align: center; }
+    .reportview-container .main .block-container { max-width: 600px; }
+    h1 { color: #0072ff; text-align: center; font-family: 'Segoe UI', sans-serif; }
+    p.subtitle { text-align: center; color: #555; margin-bottom: 20px; }
     </style>
-""", unsafe_style_blocks=True)
+""", unsafe_allow_html=True)
 
 st.title("🔮 Anuvaad AI")
-st.write("Instant Universal & Hinglish Translation App")
+st.markdown("<p class='subtitle'>Instant Universal & Hinglish Translation App</p>", unsafe_allow_html=True)
 
 # 3. भाषा चुनने का ऑप्शन
 languages = {
@@ -30,30 +31,42 @@ languages = {
     'German': 'de'
 }
 
-source_lang = st.selectbox("Select Typing Language (typing की भाषा चुनें):", list(languages.keys()))
-target_lang = st.selectbox("Select Target Language (अनुवाद की भाषा चुनें):", list(languages.keys()), index=1)
+col1, col2 = st.columns(2)
+with col1:
+    source_lang = st.selectbox("Typing Language (लिखने की भाषा):", list(languages.keys()))
+with col2:
+    target_lang = st.selectbox("Target Language (अनुवाद की भाषा):", list(languages.keys()), index=1)
 
 # कीबोर्ड लेआउट तय करना (हिंदी या इंग्लिश के हिसाब से)
 layout_type = "hindi" if "Hindi" in source_lang else "english"
 
-# 4. जादुई वर्चुअल कीबोर्ड (HTML/JS Component)
-# यह कंपोनेंट सीधे स्क्रीन पर कीबोर्ड दिखाएगा और टाइप किया हुआ टेक्स्ट स्ट्रीमलिट को वापस भेजेगा
+# 4. वर्चुअल कीबोर्ड (HTML/JS Component)
 custom_keyboard_html = f"""
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-keyboard@latest/build/css/index.css">
-<style>
-    body {{ font-family: sans-serif; margin: 0; padding: 0; background: transparent; }}
-    #input_box {{ width: 100%; padding: 12px; font-size: 16px; border: 2px solid #0072ff; border-radius: 8px; box-sizing: border-box; margin-bottom: 10px; }}
-    .simple-keyboard {{ max-width: 100%; background-color: #f1f3f4; border-radius: 8px; padding: 5px; }}
-</style>
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-keyboard@latest/build/css/index.css">
+    <style>
+        body {{ font-family: sans-serif; margin: 0; padding: 0; background: transparent; }}
+        #input_box {{ 
+            width: 100%; padding: 14px; font-size: 16px; 
+            border: 2px solid #0072ff; border-radius: 8px; 
+            box-sizing: border-box; margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }}
+        .simple-keyboard {{ max-width: 100%; background-color: #f1f3f4; border-radius: 8px; padding: 8px; }}
+        .hg-theme-default .hg-button {{ height: 40px; font-size: 14px; }}
+    </style>
+</head>
+<body>
 
-<input id="input_box" placeholder="Type here using screen keyboard..." />
+<input id="input_box" placeholder="यहाँ टाइप करें या नीचे कीबोर्ड का उपयोग करें..." />
 <div class="simple-keyboard"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/simple-keyboard@latest/build/index.js"></script>
 <script>
     const Keyboard = window.SimpleKeyboard.default;
     
-    // हिंदी और इंग्लिश के लेआउट्स
     const layouts = {{
         english: {{
             'default': [
@@ -69,7 +82,7 @@ custom_keyboard_html = f"""
                 'क ख ग घ ङ च छ ज झ ञ',
                 'ट ठ ड ढ ण त थ द ध न',
                 'प फ ब भ म य र ल व श',
-                'ष स ह क्ष त्र ज्ञ  {{bksp}}',
+                'ष स ह क्ष त्र ज्ञ {{bksp}}',
                 '{{space}}'
             ]
         }}
@@ -77,24 +90,19 @@ custom_keyboard_html = f"""
 
     const myKeyboard = new Keyboard({{
         onChange: input => onChange(input),
-        onKeyPress: button => onKeyPress(button),
         layout: layouts['{layout_type}']
     }});
 
     function onChange(input) {{
         document.querySelector("#input_box").value = input;
-        // स्ट्रीमलिट को डेटा भेजना
+        // स्ट्रीमलिट को रीयल-टाइम डेटा भेजना
         window.parent.postMessage({{
             type: 'streamlit:setComponentValue',
             value: input
         }}, '*');
     }}
 
-    function onKeyPress(button) {{
-        if (button === "{{{{shift}}}}" || button === "{{{{lock}}}}") handleShift();
-    }}
-    
-    // इनपुट बॉक्स में मैन्युअल टाइपिंग सिंक करना
+    // कीबोर्ड और इनपुट बॉक्स को आपस में सिंक रखना
     document.querySelector("#input_box").addEventListener("input", event => {{
         myKeyboard.setInput(event.target.value);
         window.parent.postMessage({{
@@ -103,18 +111,22 @@ custom_keyboard_html = f"""
         }}, '*');
     }});
 </script>
+
+</body>
+</html>
 """
 
-# HTML कंपोनेंट को स्ट्रीमलिट में रेंडर करना
 st.write("---")
 st.write("⌨️ **On-Screen Keyboard Input:**")
-user_text = components.html(custom_keyboard_html, height=280, scrolling=False)
+
+# HTML कंपोनेंट को रेंडर करना (यह वैल्यू रिटर्न करेगा)
+user_text = components.html(custom_keyboard_html, height=320, scrolling=False)
 
 # 5. ट्रांसलेशन लॉजिक
 if user_text:
-    st.info(f"**Your Text:** {user_text}")
+    st.info(f"**Your Text (आपका टेक्स्ट):** {user_text}")
     try:
         translated = GoogleTranslator(source=languages[source_lang], target=languages[target_lang]).translate(user_text)
-        st.success(f"**Translation:** {translated}")
+        st.success(f"**Translation (अनुवाद):** {translated}")
     except Exception as e:
-        st.error("Translation error or empty input.")
+        st.error("अनुवाद करने में कुछ दिक्कत आई या इनपुट खाली है।")
